@@ -1,0 +1,17 @@
+{
+  "name": "rewards-calculator-challenge",
+  "version": "1.0.0",
+  "description": "Customer Rewards Calculator - Charter Communication Coding Challenge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.1",
+    "jsdom": "^26.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}

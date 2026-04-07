@@ -2,14 +2,13 @@
 
 ## Overview
 
-This folder contains a standalone React JS solution for the customer rewards assignment.
+A standalone JavaScript solution for the customer rewards points assignment.
 
 The implementation covers:
 
 - Reward calculation per transaction
 - Monthly and total points per customer
 - Simulated asynchronous API call
-- No Redux
 - Sample dataset
 - Unit tests for business logic and async behavior
 
@@ -23,53 +22,86 @@ For each transaction amount:
 
 Example:
 
-- $120 purchase = (50 x 1) + (20 x 2) = 90 points
+- $120 purchase = (50 × 1) + (20 × 2) = 90 points
 
-## Folder Contents
+## Folder Structure
 
-- rewardsCalculator.js: Domain logic, sample transactions, async API simulation, and debug logger
-- RewardsChallengeApp.js: React UI component that loads data and renders monthly and total reward points
-- rewardsCalculator.vitest.spec.js: Test suite for point calculation, report aggregation, malformed input handling, and API simulation
-- vitest.challenge.config.mjs: Dedicated Vitest config for running this standalone JS challenge
-- ASYNC_TESTING_GUIDE.md: Step-by-step reviewer guide for validating async behavior (success/loading/failure)
+```
+├── package.json                          # Project dependencies and scripts
+├── vitest.challenge.config.mjs           # Vitest test configuration
+├── README.md                             # This file
+├── ASYNC_TESTING_GUIDE.md                # Step-by-step async testing guide
+└── src/
+    ├── rewardsCalculator.js              # Domain logic, sample data, async API simulation, logger
+    ├── RewardsChallengeApp.jsx           # React UI component for rendering the rewards report
+    └── rewardsCalculator.vitest.spec.js  # Test suite (points, aggregation, malformed input, async)
+```
 
-## Run Instructions
+## Prerequisites
 
-From repository root:
+- **Node.js** v18 or higher
+- **npm** v9 or higher
 
-1. Run challenge tests
-   npm run test:vitest -- --config coding-challenge/rewards/vitest.challenge.config.mjs
+## Getting Started (Local Setup)
 
-Alternative direct command:
-npx vitest run --config coding-challenge/rewards/vitest.challenge.config.mjs
+1. **Clone the repository**
 
-2. Use UI component
-   Import and render RewardsChallengeApp.js from any React page/container as needed.
+   ```bash
+   git clone https://github.com/ArunodayReddy/Charter-Communication-coding-challenge.git
+   cd Charter-Communication-coding-challenge
+   ```
 
-3. Quick preview route in this workspace
-   Start the app and open /shop/rewards-challenge-demo to view the challenge UI directly.
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Run the tests**
+
+   ```bash
+   npm test
+   ```
+
+   You should see output like:
+
+   ```
+   ✓ src/rewardsCalculator.vitest.spec.js (9 tests)
+
+   Test Files  1 passed (1)
+        Tests  9 passed (9)
+   ```
+
+4. **Run tests in watch mode** (re-runs on file changes)
+
+   ```bash
+   npm run test:watch
+   ```
+
+## What the Tests Validate
+
+| Test | What it checks |
+|------|---------------|
+| Points at or below $50 | Returns 0 points |
+| Points between $51–$100 | Returns 1 point per dollar over $50 |
+| Points above $100 | Returns 2 points per dollar over $100, plus lower-band points |
+| Decimal amounts | Uses whole-dollar (floor) logic |
+| Month key formatting | Produces `YYYY-MM` format; returns null for invalid dates |
+| Monthly & total aggregation | Builds correct per-customer, per-month, and grand total report |
+| Malformed transactions | Skips entries with missing customer ID or invalid date |
+| Async fetch success | Resolves with sample transaction data |
+| Async fetch failure | Rejects with error message when `shouldFail` is true |
 
 ## Architecture Notes
 
-- Separation of concerns:
-  - Calculation and aggregation are isolated in rewardsCalculator.js
-  - UI rendering is isolated in RewardsChallengeApp.js
-- Scalability:
-  - Reward thresholds and rates are centralized in REWARD_RULES
+- **Separation of concerns:**
+  - Calculation and aggregation are isolated in `src/rewardsCalculator.js`
+  - UI rendering is isolated in `src/RewardsChallengeApp.jsx`
+- **Scalability:**
+  - Reward thresholds and rates are centralized in `REWARD_RULES`
   - Report output is normalized for table-based rendering and extension
   - Async API simulation supports delay and failure scenarios for realistic testing
-- Maintainability:
+- **Maintainability:**
   - Clear function boundaries
   - Input guardrails for malformed transactions
-  - Scoped logging through rewardsLogger for debugging
-
-## Test Coverage Scope
-
-Current tests validate:
-
-- Boundary and tiered rewards logic
-- Whole-dollar behavior for decimal amounts
-- Month key formatting
-- Monthly and total customer aggregation
-- Malformed transaction handling
-- Async fetch success and failure paths
+  - Scoped logging through `rewardsLogger` for debugging
