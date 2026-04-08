@@ -6,7 +6,7 @@ This guide explains how to validate the simulated asynchronous API behavior used
 
 Scope covered:
 
-- Success path (data loads and tables render)
+- Success path (data loads correctly)
 - Loading state behavior
 - Failure path behavior
 - Console logging visibility
@@ -14,92 +14,79 @@ Scope covered:
 
 ## Where Async Is Implemented
 
-- Data fetch simulation: coding-challenge/rewards/rewardsCalculator.js
-  - Function: fetchTransactions({ delayMs, shouldFail })
+- **Data fetch simulation:** `src/rewardsCalculator.js`
+  - Function: `fetchTransactions({ delayMs, shouldFail })`
   - Uses Promise + setTimeout to mimic API latency
-- UI usage: coding-challenge/rewards/RewardsChallengeApp.js
-  - Calls fetchTransactions inside useEffect
+- **UI usage:** `src/RewardsChallengeApp.jsx`
+  - Calls `fetchTransactions` inside `useEffect`
   - Manages loading, error, and success states
 
 ## Prerequisites
 
-1. Install dependencies from repo root:
+1. Clone the repository and install dependencies:
+
+   ```bash
+   git clone https://github.com/ArunodayReddy/Charter-Communication-coding-challenge.git
+   cd Charter-Communication-coding-challenge
    npm install
-2. Start the app using your normal local startup command for this workspace.
-3. Open the challenge route:
-   /shop/rewards-challenge-demo
-
-Note:
-
-- This workspace uses Next.js basePath '/shop', so include '/shop' in the URL.
-
-## Manual Reviewer Test Steps
-
-### 1. Success Path (default)
-
-1. Open /shop/rewards-challenge-demo
-2. Expected behavior:
-   - Loading text appears briefly
-   - Rewards summary table renders
-   - Sample transaction dataset table renders
-3. Expected result:
-   - No error message shown
-
-### 2. Loading State Visibility
-
-1. Open browser DevTools > Network
-2. Set throttling to Slow 3G (or similar)
-3. Hard refresh the page
-4. Expected behavior:
-   - "Loading reward transactions..." remains visible longer before table render
-
-### 3. Simulate Slow API (explicit)
-
-1. In coding-challenge/rewards/RewardsChallengeApp.js, locate:
-   fetchTransactions({ delayMs: 350 })
-2. Temporarily change delayMs to 3000
-3. Refresh page
-4. Expected behavior:
-   - Loading state visible for around 3 seconds
-   - Data eventually renders
-5. Revert delayMs back to 350 after demo
-
-### 4. Simulate API Failure
-
-1. In coding-challenge/rewards/RewardsChallengeApp.js, temporarily change fetch call to:
-   fetchTransactions({ delayMs: 350, shouldFail: true })
-2. Refresh page
-3. Expected behavior:
-   - Error message shown: "Unable to load reward transactions. Please retry."
-   - Console includes simulated API failure log
-4. Revert shouldFail back to false/removed after demo
-
-### 5. Logger Verification
-
-1. Open browser console while loading page
-2. Expected logs include entries scoped by:
-   [RewardsCalculator]
-3. Typical log checkpoints:
-   - Fetching transactions (simulated API)
-   - Building report
-   - Report ready
+   ```
 
 ## Automated Async Test Validation
 
-Run this from repo root:
+Run from the repository root:
 
-npx vitest run --config coding-challenge/rewards/vitest.challenge.config.mjs
+```bash
+npm test
+```
 
 Expected result:
 
 - 1 test file passed
-- Async success test passed
-- Async failure test passed
+- All 9 tests passed, including:
+  - Async success test (`simulates asynchronous API data fetching`)
+  - Async failure test (`rejects when simulated API failure is requested`)
+
+## Manual Review Steps
+
+### 1. Simulate Slow API
+
+1. In `src/RewardsChallengeApp.jsx`, locate:
+
+   ```js
+   fetchTransactions({ delayMs: 350 })
+   ```
+
+2. Temporarily change `delayMs` to `3000`
+3. When integrated into a React app, the loading state should be visible for ~3 seconds
+4. Revert `delayMs` back to `350` after demo
+
+### 2. Simulate API Failure
+
+1. In `src/RewardsChallengeApp.jsx`, temporarily change the fetch call to:
+
+   ```js
+   fetchTransactions({ delayMs: 350, shouldFail: true })
+   ```
+
+2. When integrated into a React app, the error message should display:
+   `"Unable to load reward transactions. Please retry."`
+3. Console includes simulated API failure log
+4. Revert `shouldFail` back to `false` / remove after demo
+
+### 3. Logger Verification
+
+1. Open browser console while loading the page (when integrated into a React app)
+2. Expected logs include entries scoped by: `[RewardsCalculator]`
+3. Typical log checkpoints:
+   - `Fetching transactions (simulated API)`
+   - `Building report`
+   - `Report ready`
 
 ## Reviewer Acceptance Checklist
 
-- Success flow loads and renders both tables
-- Loading behavior is visible under throttled or delayed conditions
-- Failure flow displays user-friendly error state
-- Async logs are visible in console for traceability
-- Dedicated async tests pass via Vitest
+- [ ] All 9 tests pass when running `npm test`
+- [ ] Async success test resolves with correct transaction data
+- [ ] Async failure test rejects with expected error
+- [ ] Malformed transaction handling skips invalid entries
+- [ ] Reward calculation covers boundary cases ($50, $51, $100, $120, $200)
+- [ ] Code is well-structured with clear separation of concerns
